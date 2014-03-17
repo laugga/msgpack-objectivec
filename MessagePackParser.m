@@ -26,7 +26,19 @@
             return [[NSNumber alloc] initWithDouble:obj.via.dec];
             break;
         case MSGPACK_OBJECT_RAW:
-            return [[NSString alloc] initWithBytes:obj.via.raw.ptr length:obj.via.raw.size encoding:NSUTF8StringEncoding];
+				{
+					// Try to create a string from raw bytes with UTF-8 encoding
+          id unpackedObject = [[NSString alloc] initWithBytes:obj.via.raw.ptr length:obj.via.raw.size encoding:NSUTF8StringEncoding];
+					
+					// The NSString creating failed because the raw data is not UTF-8 encoded
+					if(!unpackedObject)
+					{
+						// Create a NSData with the raw bytes
+						unpackedObject = [[NSData alloc] initWithBytes:obj.via.raw.ptr length:obj.via.raw.size];
+					}
+					
+					return unpackedObject;
+				}
             break;
         case MSGPACK_OBJECT_ARRAY:
         {
